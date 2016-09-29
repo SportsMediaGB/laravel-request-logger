@@ -1,12 +1,25 @@
 <?php namespace Prettus\RequestLogger\Helpers;
 
 use Carbon\Carbon;
+use App\SportsMediaGB\GeoIP\GetRequestLocation;
 
 /**
  * Class RequestInterpolation
  * @package Prettus\RequestLogger\Helpers
  */
 class RequestInterpolation extends BaseInterpolation {
+
+    private function getLocation($user = null) {
+        if ($user != null) {
+            $locationGrabber = new GetRequestLocation;
+            $location = $locationGrabber->getLocation($user);
+        } else {
+            $locationGrabber = new GetRequestLocation;
+            $location = $locationGrabber->getLocation();
+        }
+
+        return $location;
+    }
 
     /**
      * @param string $text
@@ -72,7 +85,10 @@ class RequestInterpolation extends BaseInterpolation {
             "HTTP_USER_AGENT"
         ], strtoupper(str_replace("-","_", $variable)) );
 
-        if( method_exists($this->request, $method) ) {
+        if ($method === 'ip') {
+            $location = $this->getLocation();
+            return $location['ip'];
+        } elseif ( method_exists($this->request, $method) ) {
             return $this->request->$method();
         } elseif( isset($_SERVER[$server_var]) ) {
             return $this->request->server($server_var);
