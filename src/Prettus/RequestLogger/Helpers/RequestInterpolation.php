@@ -9,18 +9,6 @@ use App\SportsMediaGB\GeoIP\GetRequestLocation;
  */
 class RequestInterpolation extends BaseInterpolation {
 
-    private function getLocation($user = null) {
-        if ($user != null) {
-            $locationGrabber = new GetRequestLocation;
-            $location = $locationGrabber->getLocation($user);
-        } else {
-            $locationGrabber = new GetRequestLocation;
-            $location = $locationGrabber->getLocation();
-        }
-
-        return $location;
-    }
-
     /**
      * @param string $text
      * @return string
@@ -86,7 +74,8 @@ class RequestInterpolation extends BaseInterpolation {
         ], strtoupper(str_replace("-","_", $variable)) );
 
         if ($method === 'ip') {
-            $location = $this->getLocation();
+            $locationGrabber = new GetRequestLocation;
+            $location = $locationGrabber->getLocation();
             return $location['ip'];
         } elseif ( method_exists($this->request, $method) ) {
             return $this->request->$method();
